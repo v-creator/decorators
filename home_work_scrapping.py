@@ -5,7 +5,9 @@ import warnings
 import pprint
 import logging
 import re
+import os
 from fake_headers import Headers
+from task_3 import my_logger
 warnings.filterwarnings('ignore')
 
 KEYWORDS = ['дизайн', 'фото', 'web', 'Python','поехали']
@@ -18,6 +20,10 @@ url = 'https://habr.com'
 get_url = f'{url}/ru/all'
 head = Headers(os="mac", headers=True).generate()
 
+if os.path.exists('scrapping.log'):
+    os.remove('scrapping.log')
+
+@my_logger
 def get_article(session, url, headers):
     """Функция для получения данных с сайта"""
     response = session.get(url, headers=headers, verify=False)
@@ -27,7 +33,7 @@ def get_article(session, url, headers):
     articles = soup.find_all('article')
     return articles
 
-
+@my_logger
 def read_article(articles, keywords, pattern):
     """Функция для преобразования полученных данных 
     с сайта и приведение их к необходимой структуре"""
@@ -52,7 +58,7 @@ def read_article(articles, keywords, pattern):
             result.append(f'{date[0]} в {time[0]} - {title} ===> {full_href}')
     return result
 
-
+@my_logger
 def next_url(session, url, headers):
     """Функция для получения адреса следующей сраницы"""
     response = session.get(url, headers=headers, verify=False)
@@ -63,7 +69,7 @@ def next_url(session, url, headers):
     pagination_page = pagination[0].find(id = 'pagination-next-page')['href']
     return pagination_page
 
-
+@my_logger
 def load_article(count, get_url, head, KEYWORDS):
     with requests.Session() as sess:
         for i in range(count):
